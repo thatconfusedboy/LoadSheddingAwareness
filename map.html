@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Load Shedding Map</title>
+  <!-- Leaflet CSS for interactive maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* CSS Variables for theme colors */
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --light-color: #ecf0f1;
+      --dark-color: #2c3e50;
+      --text-color: #333;
+      --text-light: #fff;
+    }
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: #f5f7fa;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    /* Header Styles */
+    header {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: var(--text-light);
+      padding: 1.5rem 0;
+      text-align: center;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    /* Navigation bar container */
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--secondary-color);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    /* Navigation buttons styling */
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .nav-buttons button {
+      padding: 0.6rem 1.2rem;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-buttons button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    /* Language switcher dropdown */
+    .language-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .language-switcher select {
+      padding: 0.5rem;
+      border-radius: 50px;
+      border: 1px solid #ddd;
+      background-color: var(--text-light);
+      font-family: inherit;
+    }
+    /* Map Container */
+    #map {
+      height: 500px;
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin: 1rem 0;
+      z-index: 1;
+    }
+    /* Info Section */
+    .info-section {
+      background-color: var(--text-light);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin: 1.5rem 0;
+    }
+    .info-section h2 {
+      font-size: 1.8rem;
+      color: var(--secondary-color);
+      margin-bottom: 1rem;
+      font-weight: 600;
+      position: relative;
+      display: inline-block;
+    }
+    .info-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      border-radius: 2px;
+    }
+    #load-shedding-info {
+      font-size: 1.2rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      background-color: var(--light-color);
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .schedule {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .schedule-day {
+      flex: 1;
+      min-width: 200px;
+      background-color: var(--light-color);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .schedule-day strong {
+      color: var(--secondary-color);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .schedule-time {
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #ddd;
+    }
+    /* Chat Section */
+    .chat-section {
+      background-color: var(--text-light);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin: 1.5rem 0;
+    }
+    .chat-box {
+      height: 250px;
+      overflow-y: auto;
+      margin: 1rem 0;
+      padding: 1rem;
+      background-color: var(--light-color);
+      border-radius: 10px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .chat-message {
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
+    }
+    .timestamp {
+      font-size: 0.8rem;
+      color: #666;
+      margin-right: 0.5rem;
+    }
+    .username {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .chat-input-container {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    #chat-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    #chat-button {
+      padding: 0.8rem 1.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    #chat-button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    /* Status Colors for different load shedding stages */
+    .status-0 { color: var(--success-color); }
+    .status-1 { color: #3498db; }
+    .status-2 { color: var(--warning-color); }
+    .status-4 { color: #e67e22; }
+    .status-6 { color: var(--accent-color); }
+    .status-8 { color: #000; }
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      background-color: var(--secondary-color);
+      color: var(--text-light);
+      border-radius: 20px 20px 0 0;
+    }
+    /* Responsive Design for mobile */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .schedule {
+        flex-direction: column;
+      }
+      .chat-input-container {
+        flex-direction: column;
+      }
+      #chat-button {
+        width: 100%;
+      }
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation bar with logout and maze game buttons -->
+  <div class="nav-container">
+    <div class="nav-buttons">
+      <button onclick="window.location.href='index.html'">
+        <i class="fas fa-sign-out-alt"></i>
+        <span id="logout-text">Logout</span>
+      </button>
+      <button onclick="window.location.href='maze.html'">
+        <i class="fas fa-gamepad"></i>
+        <span id="game-text">Play Maze Game</span>
+      </button>
+    </div>
+    <!-- Language switcher dropdown -->
+    <div class="language-switcher">
+      <i class="fas fa-globe" style="color: white;"></i>
+      <select id="language-select" onchange="switchLanguage()">
+        <option value="en">English</option>
+        <option value="af">Afrikaans</option>
+        <option value="xh">isiXhosa</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Page header -->
+    <header>
+      <h1 id="title">Load Shedding Map: Bellville & Parow</h1>
+      <p id="description">Click on the map to view load shedding schedules for specific areas.</p>
+    </header>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Information Section for area status and schedule -->
+    <div class="info-section">
+      <h2 id="info-title">Load Shedding Status</h2>
+      <p id="info-description">Click on an area on the map to see the load shedding schedule.</p>
+      <div id="load-shedding-info">No area selected yet.</div>
+      <div id="schedule-container" class="schedule" style="display: none;"></div>
+    </div>
+
+    <!-- Community Chat Section -->
+    <div class="chat-section">
+      <h2 id="chat-title">Community Chat</h2>
+      <div id="chat-box" class="chat-box"></div>
+      <div class="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Type a message..." aria-label="Chat input">
+        <button id="chat-button" onclick="sendMessage()">
+          <i class="fas fa-paper-plane"></i>
+          <span id="send-text">Send</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with credits -->
+  <footer>
+    <p id="footer-text">© 2025 Load Shedding Map - Community Awareness Tool</p>
+    <p id="credit-text">Created for Educational Purposes</p>
+  </footer>
+
+  <!-- Leaflet JS for interactive map functionality -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Language content for UI translations
+    const languageContent = {
+      en: {
+        title: "Load Shedding Map: Bellville & Parow",
+        description: "Click on the map to view load shedding schedules for specific areas.",
+        infoTitle: "Load Shedding Status",
+        infoDescription: "Click on an area on the map to see the load shedding schedule.",
+        noSelection: "No area selected yet.",
+        scheduleTitle: "Schedule for",
+        chatTitle: "Community Chat",
+        sendText: "Send",
+        logoutText: "Logout",
+        gameText: "Play Maze Game",
+        footerText: "© 2025 Load Shedding Map - Community Awareness Tool",
+        creditText: "Created for Educational Purposes",
+        stages: {
+          0: "No load shedding",
+          1: "Stage 1: Minimal impact",
+          2: "Stage 2: Moderate impact",
+          4: "Stage 4: Severe impact",
+          6: "Stage 6: Critical impact",
+          8: "Stage 8: Emergency situation"
+        }
+      },
+      af: {
+        title: "Laai Af Skedule Kaart: Bellville & Parow",
+        description: "Klik op die kaart om laai-af skedules vir spesifieke areas te sien.",
+        infoTitle: "Laai Af Status",
+        infoDescription: "Klik op 'n area op die kaart om die laai-af skedule te sien.",
+        noSelection: "Geen area gekies nie.",
+        scheduleTitle: "Skedule vir",
+        chatTitle: "Gemeenskapsgeselskap",
+        sendText: "Stuur",
+        logoutText: "Teken uit",
+        gameText: "Speel Doolhof Speletjie",
+        footerText: "© 2025 Laai-Af Kaart - Gemeenskapsbewustheid Instrument",
+        creditText: "Geskep vir Opvoedkundige Doeleindes",
+        stages: {
+          0: "Geen laai-af nie",
+          1: "Fase 1: Minimale impak",
+          2: "Fase 2: Matige impak",
+          4: "Fase 4: Erge impak",
+          6: "Fase 6: Kritieke impak",
+          8: "Fase 8: Noodsituasie"
+        }
+      },
+      xh: {
+        title: "Imephu yokucima ugesi: Bellville & Parow",
+        description: "Cofa kwimephu ukubona amaxeshana okucima ugesi kwindawo ezithile.",
+        infoTitle: "Imeko yokucima ugesi",
+        infoDescription: "Cofa kwindawo kwimephu ukubona ixesha lokucima ugesi.",
+        noSelection: "Akukho ndawo ekhethiweyo.",
+        scheduleTitle: "Ixeshana le",
+        chatTitle: "Ingxoxo yoluntu",
+        sendText: "Thumela",
+        logoutText: "Phuma",
+        gameText: "Dlala iMaze yoKukhanya",
+        footerText: "© 2025 Imephu yoKucima uGesi - Isixhobo soLwazi loLuntu",
+        creditText: "Yenziwe ngeenjongo zeMfundo",
+        stages: {
+          0: "Akukho kucinywa kogesi",
+          1: "Isigaba 1: Imfutshane",
+          2: "Isigaba 2: Isiphakathi",
+          4: "Isigaba 4: Ezinzima",
+          6: "Isigaba 6: Ebalulekileyo",
+          8: "Isigaba 8: Isimo esingxamisekileyo"
+        }
+      }
+    };
+
+    // Set current language from localStorage or default to English
+    let currentLanguage = localStorage.getItem('currentLanguage') || 'en';
+
+    // Initialize the Leaflet map
+    var map = L.map('map').setView([-33.9, 18.6], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Define areas with load shedding data and schedules
+    var areas = [
+      {
+        name: "Bellville",
+        lat: -33.9,
+        lon: 18.6,
+        status: 4,
+        schedule: {
+          "Monday": ["08:00-10:00", "20:00-22:00"],
+          "Tuesday": ["10:00-12:00", "22:00-00:00"],
+          "Wednesday": ["12:00-14:00", "00:00-02:00"],
+          "Thursday": ["14:00-16:00", "02:00-04:00"],
+          "Friday": ["16:00-18:00", "04:00-06:00"],
+          "Saturday": ["18:00-20:00", "06:00-08:00"],
+          "Sunday": ["No load shedding"]
+        }
+      },
+      {
+        name: "Parow",
+        lat: -33.9,
+        lon: 18.5,
+        status: 6,
+        schedule: {
+          "Monday": ["06:00-08:30", "18:00-20:30"],
+          "Tuesday": ["08:30-11:00", "20:30-23:00"],
+          "Wednesday": ["11:00-13:30", "23:00-01:30"],
+          "Thursday": ["13:30-16:00", "01:30-04:00"],
+          "Friday": ["16:00-18:30", "04:00-06:30"],
+          "Saturday": ["18:30-21:00", "06:30-09:00"],
+          "Sunday": ["No load shedding"]
+        }
+      },
+      {
+        name: "Goodwood",
+        lat: -33.9,
+        lon: 18.55,
+        status: 0,
+        schedule: {
+          "Monday": ["No load shedding"],
+          "Tuesday": ["No load shedding"],
+          "Wednesday": ["No load shedding"],
+          "Thursday": ["No load shedding"],
+          "Friday": ["No load shedding"],
+          "Saturday": ["No load shedding"],
+          "Sunday": ["No load shedding"]
+        }
+      },
+      {
+        name: "Plattekloof",
+        lat: -33.88,
+        lon: 18.6,
+        status: 2,
+        schedule: {
+          "Monday": ["10:00-12:00"],
+          "Tuesday": ["12:00-14:00"],
+          "Wednesday": ["14:00-16:00"],
+          "Thursday": ["16:00-18:00"],
+          "Friday": ["18:00-20:00"],
+          "Saturday": ["20:00-22:00"],
+          "Sunday": ["No load shedding"]
+        }
+      }
+    ];
+
+    // Add area markers to the map
+    areas.forEach(function(area) {
+      let color;
+      // Choose marker color based on status
+      switch(area.status) {
+        case 0: color = 'var(--success-color)'; break;
+        case 1: color = 'var(--primary-color)'; break;
+        case 2: color = 'var(--warning-color)'; break;
+        case 4: color = '#e67e22'; break;
+        case 6: color = 'var(--accent-color)'; break;
+        case 8: color = '#000'; break;
+        default: color = 'gray';
+      }
+      // Create a custom marker with color
+      var marker = L.marker([area.lat, area.lon], {
+        icon: L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+          iconSize: [30, 30]
+        })
+      }).addTo(map);
+      // Bind popup with area name and status
+      marker.bindPopup(`<b>${area.name}</b><br>${languageContent[currentLanguage].stages[area.status]}`);
+      // On marker click, update info section
+      marker.on('click', function() {
+        updateLoadSheddingInfo(area.name);
+      });
+    });
+
+    // Update load shedding info and schedule for selected area
+    function updateLoadSheddingInfo(areaName) {
+      const area = areas.find(a => a.name === areaName);
+      if (area) {
+        const lang = languageContent[currentLanguage];
+        // Show status with color
+        const statusText = `<span class="status-${area.status}">${lang.stages[area.status]}</span>`;
+        document.getElementById('load-shedding-info').innerHTML = `${areaName}: ${statusText}`;
+        // Show schedule
+        const scheduleContainer = document.getElementById('schedule-container');
+        scheduleContainer.innerHTML = '';
+        scheduleContainer.style.display = 'flex';
+        // Add schedule title
+        const scheduleTitle = document.createElement('h3');
+        scheduleTitle.textContent = `${lang.scheduleTitle} ${areaName}`;
+        scheduleContainer.appendChild(scheduleTitle);
+        // Add each day's schedule
+        for (const [day, times] of Object.entries(area.schedule)) {
+          const dayElement = document.createElement('div');
+          dayElement.className = 'schedule-day fade-in';
+          dayElement.innerHTML = `<strong>${day}</strong>`;
+          times.forEach(time => {
+            const timeElement = document.createElement('div');
+            timeElement.className = 'schedule-time';
+            timeElement.textContent = time;
+            dayElement.appendChild(timeElement);
+          });
+          scheduleContainer.appendChild(dayElement);
+        }
+      }
+    }
+
+    // Chat functionality: predefined users and messages
+    const chatUsers = ['Tony', 'Brady', 'Garreth'];
+    const chatMessages = [
+      "Has anyone heard when Stage 4 will end?",
+      "I heard it might continue through the weekend",
+      "Make sure to charge your power banks during the off periods!"
+    ];
+
+    // Add automated chat messages with delay
+    function addAutomatedMessages() {
+      const chatBox = document.getElementById('chat-box');
+      chatUsers.forEach((user, index) => {
+        setTimeout(() => {
+          const messageElement = document.createElement('div');
+          messageElement.className = 'chat-message fade-in';
+          messageElement.innerHTML = `
+            <span class="timestamp">[${new Date().toLocaleTimeString()}]</span>
+            <span class="username">${user}:</span>
+            ${chatMessages[index]}
+          `;
+          chatBox.appendChild(messageElement);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }, (index + 1) * 1500);
+      });
+    }
+
+    // Send a chat message from the user
+    function sendMessage() {
+      const message = document.getElementById('chat-input').value.trim();
+      if (message) {
+        const chatBox = document.getElementById('chat-box');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'chat-message fade-in';
+        messageElement.innerHTML = `
+          <span class="timestamp">[${new Date().toLocaleTimeString()}]</span>
+          <span class="username">${localStorage.getItem('currentUser') || 'You'}:</span>
+          ${message}
+        `;
+        chatBox.appendChild(messageElement);
+        document.getElementById('chat-input').value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }
+
+    // Switch language and update all UI text
+    function switchLanguage() {
+      currentLanguage = document.getElementById('language-select').value;
+      localStorage.setItem('currentLanguage', currentLanguage);
+      const lang = languageContent[currentLanguage];
+      // Update all text elements
+      document.getElementById('title').textContent = lang.title;
+      document.getElementById('description').textContent = lang.description;
+      document.getElementById('info-title').textContent = lang.infoTitle;
+      document.getElementById('info-description').textContent = lang.infoDescription;
+      document.getElementById('chat-title').textContent = lang.chatTitle;
+      document.getElementById('send-text').textContent = lang.sendText;
+      document.getElementById('logout-text').textContent = lang.logoutText;
+      document.getElementById('game-text').textContent = lang.gameText;
+      document.getElementById('footer-text').textContent = lang.footerText;
+      document.getElementById('credit-text').textContent = lang.creditText;
+      // Update "no selection" message if no area is selected
+      if (document.getElementById('load-shedding-info').textContent === languageContent.en.noSelection ||
+          document.getElementById('load-shedding-info').textContent === languageContent.af.noSelection ||
+          document.getElementById('load-shedding-info').textContent === languageContent.xh.noSelection) {
+        document.getElementById('load-shedding-info').textContent = lang.noSelection;
+      }
+      // Update marker popups with new language
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+          const areaName = layer.getPopup().getContent().split('<b>')[1].split('</b>')[0];
+          const area = areas.find(a => a.name === areaName);
+          if (area) {
+            layer.getPopup().setContent(`<b>${areaName}</b><br>${lang.stages[area.status]}`);
+          }
+        }
+      });
+    }
+
+    // Initialize chat and language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set initial language in dropdown
+      document.getElementById('language-select').value = currentLanguage;
+      switchLanguage();
+      // Start automated chat messages
+      addAutomatedMessages();
+      // Allow sending message with Enter key
+      document.getElementById('chat-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

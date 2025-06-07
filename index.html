@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Load Shedding App</title>
+  <!-- Google Fonts for custom font styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS variables for theme colors */
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --success-color: #2ecc71;
+      --light-color: #ecf0f1;
+      --text-color: #333;
+      --text-light: #fff;
+    }
+
+    /* Reset box model and remove default margin/padding */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Body styling for background and centering */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Login form container styling */
+    .login-container {
+      background-color: var(--light-color);
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative gradient bar at the top of the login card */
+    .login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    /* Login title styling */
+    .login-container h1 {
+      color: var(--secondary-color);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      font-size: 2rem;
+      position: relative;
+    }
+
+    /* Decorative underline for the login title */
+    .login-container h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      border-radius: 2px;
+    }
+
+    /* Input group for icon and input alignment */
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    /* Icon styling inside input fields */
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary-color);
+      opacity: 0.7;
+    }
+
+    /* Input field styling */
+    .login-container input {
+      width: 100%;
+      padding: 12px 12px 12px 40px; /* space for icon */
+      margin: 8px 0;
+      border: 2px solid #ddd;
+      border-radius: 50px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    /* Input focus effect */
+    .login-container input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    /* Login button styling */
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Button hover effect */
+    .login-container button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Button active (pressed) effect */
+    .login-container button:active {
+      transform: translateY(0);
+    }
+
+    /* Language switcher container styling */
+    .language-switcher {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Globe icon color in language switcher */
+    .language-switcher i {
+      color: var(--secondary-color);
+    }
+
+    /* Language dropdown styling */
+    .language-switcher select {
+      padding: 8px 12px;
+      border-radius: 50px;
+      border: 2px solid #ddd;
+      background-color: white;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    /* Language dropdown hover effect */
+    .language-switcher select:hover {
+      border-color: var(--primary-color);
+    }
+
+    /* Language dropdown focus effect */
+    .language-switcher select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    /* Responsive adjustments for mobile screens */
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 1.5rem;
+      }
+      .login-container h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login form container -->
+  <div class="login-container">
+    <!-- Login title (changes with language) -->
+    <h1 id="login-title">Login</h1>
+    <!-- Username input with icon -->
+    <div class="input-group">
+      <i class="fas fa-user"></i>
+      <input type="text" id="username" placeholder="Username" aria-label="Username">
+    </div>
+    <!-- Password input with icon -->
+    <div class="input-group">
+      <i class="fas fa-lock"></i>
+      <input type="password" id="password" placeholder="Password" aria-label="Password">
+    </div>
+    <!-- Login button (changes with language) -->
+    <button onclick="login()" id="login-button">
+      <i class="fas fa-sign-in-alt"></i>
+      <span>Login</span>
+    </button>
+    <!-- Language switcher dropdown -->
+    <div class="language-switcher">
+      <i class="fas fa-globe"></i>
+      <select id="language-select" onchange="switchLanguage()">
+        <option value="en">English</option>
+        <option value="af">Afrikaans</option>
+        <option value="xh">isiXhosa</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    // Language content for UI translations
+    const languageContent = {
+      en: {
+        loginTitle: "Login",
+        usernamePlaceholder: "Username",
+        passwordPlaceholder: "Password",
+        loginButton: "Login"
+      },
+      af: {
+        loginTitle: "Teken In",
+        usernamePlaceholder: "Gebruikersnaam",
+        passwordPlaceholder: "Wagwoord",
+        loginButton: "Teken In"
+      },
+      xh: {
+        loginTitle: "Ngena",
+        usernamePlaceholder: "Igama lomsebenzisi",
+        passwordPlaceholder: "Igama lokugqitha",
+        loginButton: "Ngena"
+      }
+    };
+
+    // Switches the UI language based on dropdown selection
+    function switchLanguage() {
+      const lang = document.getElementById('language-select').value;
+      const content = languageContent[lang];
+      // Update all translatable UI elements
+      document.getElementById('login-title').textContent = content.loginTitle;
+      document.getElementById('username').placeholder = content.usernamePlaceholder;
+      document.getElementById('password').placeholder = content.passwordPlaceholder;
+      document.getElementById('login-button').innerHTML = `
+        <i class="fas fa-sign-in-alt"></i>
+        <span>${content.loginButton}</span>
+      `;
+    }
+
+    // Handles login logic and redirects to map page
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      // Simple validation: both fields must be filled
+      if (username && password) {
+        // Store user and language in localStorage
+        localStorage.setItem('currentUser', username);
+        localStorage.setItem('currentLanguage', document.getElementById('language-select').value);
+        // Redirect to map page
+        window.location.href = 'map.html';
+      } else {
+        alert('Please enter both username and password');
+      }
+    }
+
+    // On page load: set language and focus username input
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get saved language or default to English
+      const savedLang = localStorage.getItem('currentLanguage') || 'en';
+      document.getElementById('language-select').value = savedLang;
+      switchLanguage();
+      // Focus on username input for convenience
+      document.getElementById('username').focus();
+    });
+  </script>
+</body>
+</html>

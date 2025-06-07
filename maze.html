@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maze Game - Load Shedding App</title>
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --light-color: #ecf0f1;
+      --dark-color: #2c3e50;
+      --text-color: #333;
+      --text-light: #fff;
+    }
+   
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+   
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: #f5f7fa;
+      min-height: 100vh;
+    }
+   
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+   
+    /* Header Styles */
+    header {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: var(--text-light);
+      padding: 1.5rem 0;
+      text-align: center;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+   
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+   
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+   
+    /* Navigation */
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--secondary-color);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+   
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+   
+    .nav-buttons button {
+      padding: 0.6rem 1.2rem;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+   
+    .nav-buttons button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+   
+    .nav-buttons button i {
+      font-size: 1rem;
+    }
+   
+    .language-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+   
+    .language-switcher select {
+      padding: 0.5rem;
+      border-radius: 50px;
+      border: 1px solid #ddd;
+      background-color: var(--text-light);
+      font-family: inherit;
+    }
+   
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+   
+    /* Difficulty Selector */
+    .difficulty-selector {
+      background-color: var(--text-light);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-top: 1rem;
+    }
+   
+    .difficulty-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: var(--secondary-color);
+      font-weight: 600;
+      position: relative;
+      display: inline-block;
+    }
+   
+    .difficulty-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      border-radius: 2px;
+    }
+   
+    .difficulty-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+   
+    .difficulty-option {
+      flex: 1;
+      min-width: 250px;
+      max-width: 300px;
+    }
+   
+    .difficulty-btn {
+      padding: 2rem 1.5rem;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      width: 100%;
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+   
+    .difficulty-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+      z-index: 1;
+    }
+   
+    .difficulty-btn:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+   
+    .easy-btn {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      color: white;
+    }
+   
+    .intermediate-btn {
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: white;
+    }
+   
+    .hard-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+    }
+   
+    .difficulty-character {
+      width: 280px;
+      height: 200px;
+      object-fit: contain;
+      margin: 1rem 0;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+      z-index: 2;
+      transition: transform 0.3s ease;
+    }
+   
+    .difficulty-btn:hover .difficulty-character {
+      transform: scale(1.1);
+    }
+   
+    .difficulty-info {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: white;
+      background-color: rgba(0,0,0,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-weight: 500;
+      z-index: 2;
+      backdrop-filter: blur(5px);
+    }
+   
+    /* Game Container */
+    .game-container {
+      display: none;
+      background-color: var(--text-light);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin-top: 1rem;
+    }
+   
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+   
+    .game-title {
+      font-size: 1.8rem;
+      color: var(--secondary-color);
+      font-weight: 600;
+    }
+   
+    .game-stats {
+      display: flex;
+      gap: 1.5rem;
+    }
+   
+    .stat-box {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+   
+    .stat-box i {
+      font-size: 1.2rem;
+    }
+   
+    .maze-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+   
+    #mazeCanvas {
+      background: #000;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(251, 255, 0, 0.3);
+      margin: 1rem 0;
+    }
+   
+    .instructions {
+      background-color: var(--light-color);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+   
+    .instructions h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+   
+    .instructions p {
+      margin-bottom: 1rem;
+    }
+   
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+   
+    .control-group {
+      background-color: var(--text-light);
+      padding: 1rem;
+      border-radius: 10px;
+      flex: 1;
+      min-width: 200px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+   
+    .control-group h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+   
+    .key {
+      display: inline-block;
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.3rem 0.6rem;
+      border-radius: 5px;
+      font-family: monospace;
+      margin: 0.2rem;
+    }
+   
+    /* Question Modal */
+    .question-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+   
+    .question-box {
+      background-color: var(--text-light);
+      color: var(--text-color);
+      padding: 2rem;
+      border-radius: 15px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+   
+    .question-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+   
+    .question-box h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: var(--secondary-color);
+    }
+   
+    .question-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+   
+    .question-option {
+      padding: 1rem;
+      background-color: var(--light-color);
+      border: none;
+      color: var(--text-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      text-align: left;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+   
+    .question-option:hover {
+      background-color: var(--primary-color);
+      color: white;
+      transform: translateX(5px);
+    }
+   
+    .question-option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background-color: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+   
+    .question-option:hover::before {
+      width: 100%;
+      opacity: 0.2;
+    }
+   
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      height: 10px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+   
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+   
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+     
+      .difficulty-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+     
+      .difficulty-option {
+        max-width: 100%;
+      }
+     
+      .game-stats {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+     
+      #mazeCanvas {
+        width: 100%;
+        height: auto;
+      }
+    }
+   
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+   
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+   
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+   
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: var(--secondary-color);
+      color: var(--text-light);
+      text-align: center;
+      border-radius: 6px;
+      padding: 0.5rem;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.9rem;
+    }
+   
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+   
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      background-color: var(--secondary-color);
+      color: var(--text-light);
+      border-radius: 20px 20px 0 0;
+    }
+   
+    footer p {
+      margin-bottom: 0.5rem;
+    }
+   
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+   
+    .social-links a {
+      color: var(--text-light);
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+   
+    .social-links a:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-container">
+    <div class="nav-buttons">
+      <button onclick="window.location.href='index.html'">
+        <i class="fas fa-sign-out-alt"></i>
+        <span id="logout-text">Logout</span>
+      </button>
+      <button onclick="window.location.href='map.html'">
+        <i class="fas fa-map"></i>
+        <span id="map-text">Back to Map</span>
+      </button>
+    </div>
+    <div class="language-switcher">
+      <i class="fas fa-globe" style="color: white;"></i>
+      <select id="language-select" onchange="switchLanguage()">
+        <option value="en">English</option>
+        <option value="af">Afrikaans</option>
+        <option value="xh">isiXhosa</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1 id="title">The Maze Of Light</h1>
+      <p id="description">Answer questions to restore power and brighten the maze!</p>
+    </header>
+
+    <div class="main-content">
+      <div class="difficulty-selector" id="difficultySelector">
+        <h2 class="difficulty-title" id="difficulty-title">Select Difficulty Level</h2>
+        <p id="difficulty-subtitle" style="color: #666; margin-bottom: 1rem;">Choose your challenge level to begin the game</p>
+       
+        <div class="progress-container">
+          <div class="progress-bar" id="difficulty-progress"></div>
+        </div>
+       
+        <div class="difficulty-buttons">
+          <div class="difficulty-option">
+            <button class="difficulty-btn easy-btn" onclick="startGame('easy')">
+              <span id="easy-label">Easy</span>
+              <img src class="difficulty-character" alt="Placeholder">
+              <div class="difficulty-info" id="easy-info">
+                <i class="fas fa-question-circle"></i> 3 questions to complete
+              </div>
+            </button>
+          </div>
+          <div class="difficulty-option">
+            <button class="difficulty-btn intermediate-btn" onclick="startGame('intermediate')">
+              <span id="intermediate-label">Intermediate</span>
+              <img src class="difficulty-character" alt="Placeholder">
+              <div class="difficulty-info" id="intermediate-info">
+                <i class="fas fa-question-circle"></i> 5 questions to complete
+              </div>
+            </button>
+          </div>
+          <div class="difficulty-option">
+            <button class="difficulty-btn hard-btn" onclick="startGame('hard')">
+              <span id="hard-label">Hard</span>
+              <img src class="difficulty-character" alt="Placeholder">
+              <div class="difficulty-info" id="hard-info">
+                <i class="fas fa-question-circle"></i> 10 questions to complete
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-container" id="gameContainer">
+        <div class="game-header">
+          <h2 class="game-title" id="game-title">Maze of Light</h2>
+          <div class="game-stats">
+            <div class="stat-box">
+              <i class="fas fa-question"></i>
+              <span id="questionsCount">0</span>/<span id="questionsNeeded">0</span>
+            </div>
+            <div class="stat-box">
+              <i class="fas fa-lightbulb"></i>
+              <span id="brightnessLevel">0</span>%
+            </div>
+            <div class="stat-box">
+              <i class="fas fa-tachometer-alt"></i>
+              <span id="difficultyLevel">None</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="maze-wrapper">
+          <canvas id="mazeCanvas" width="420" height="420" aria-label="Maze game"></canvas>
+         
+          <div class="instructions">
+            <h2><i class="fas fa-info-circle"></i> <span id="instructions-title">Instructions</span></h2>
+            <p id="instructions-text">Use arrow keys or WASD to move the green player to the red goal. Answer questions correctly to brighten the maze. Each correct answer increases brightness.</p>
+           
+            <div class="controls">
+              <div class="control-group">
+                <h3><i class="fas fa-keyboard"></i> Keyboard Controls</h3>
+                <p>
+                  <span class="key">W</span> or <span class="key">↑</span> - Move Up<br>
+                  <span class="key">A</span> or <span class="key">←</span> - Move Left<br>
+                  <span class="key">S</span> or <span class="key">↓</span> - Move Down<br>
+                  <span class="key">D</span> or <span class="key">→</span> - Move Right
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-modal" id="questionModal">
+    <div class="question-box">
+      <h2 id="questionText">Question will appear here</h2>
+      <div class="question-options" id="questionOptions">
+        <!-- Options will be added here dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p id="footer-text">© 2025 Maze of Light - Load Shedding Awareness Game</p>
+    <p id="credit-text">Created for Educational Purposes</p>
+    <div class="social-links">
+      <a href="#" class="tooltip"><i class="fab fa-facebook"></i><span class="tooltiptext">Follow us on Facebook</span></a>
+      <a href="#" class="tooltip"><i class="fab fa-twitter"></i><span class="tooltiptext">Follow us on Twitter</span></a>
+      <a href="#" class="tooltip"><i class="fab fa-instagram"></i><span class="tooltiptext">Follow us on Instagram</span></a>
+    </div>
+  </footer>
+
+  <script>
+    // Language content
+    const languageContent = {
+      en: {
+        title: "The Maze Of Light",
+        description: "Answer questions to restore power and brighten the maze!",
+        difficultyTitle: "Select Difficulty Level",
+        difficultySubtitle: "Choose your challenge level to begin the game",
+        easyLabel: "Easy",
+        intermediateLabel: "Intermediate",
+        hardLabel: "Hard",
+        easyInfo: "3 questions to complete",
+        intermediateInfo: "5 questions to complete",
+        hardInfo: "10 questions to complete",
+        instructionsTitle: "Instructions",
+        instructionsText: "Use arrow keys or WASD to move the green player to the red goal. Answer questions correctly to brighten the maze. Each correct answer increases brightness.",
+        winMessage: "🎉 Congratulations! You restored power and ended load shedding!",
+        incorrect: "Incorrect! Try again.",
+        logoutText: "Logout",
+        mapText: "Back to Map",
+        gameTitle: "Maze of Light",
+        footerText: "© 2025 Maze of Light - Load Shedding Awareness Game",
+        creditText: "Created for Educational Purposes",
+        difficulty: {
+          easy: "Easy",
+          intermediate: "Intermediate",
+          hard: "Hard"
+        }
+      },
+      af: {
+        title: "Die Doolhof van Lig",
+        description: "Beantwoord vrae om krag te herstel en die doolhof te verhelder!",
+        difficultyTitle: "Kies Moeilikheidsgraad",
+        difficultySubtitle: "Kies jou uitdagingsvlak om die speletjie te begin",
+        easyLabel: "Maklik",
+        intermediateLabel: "Medium",
+        hardLabel: "Moeilik",
+        easyInfo: "3 vrae om te voltooi",
+        intermediateInfo: "5 vrae om te voltooi",
+        hardInfo: "10 vrae om te voltooi",
+        instructionsTitle: "Instruksies",
+        instructionsText: "Gebruik pyltjies of WASD om die groen speler na die rooi doel te beweeg. Beantwoord vrae korrek om die doolhof te verhelder. Elke korrekte antwoord verhoog helderheid.",
+        winMessage: "🎉 Geluk! Jy het krag herstel en laai-af beëindig!",
+        incorrect: "Verkeerd! Probeer weer.",
+        logoutText: "Teken uit",
+        mapText: "Terug na Kaart",
+        gameTitle: "Doolhof van Lig",
+        footerText: "© 2025 Doolhof van Lig - Laai-Af Bewustheid Speletjie",
+        creditText: "Geskep vir Opvoedkundige Doeleindes",
+        difficulty: {
+          easy: "Maklik",
+          intermediate: "Medium",
+          hard: "Moeilik"
+        }
+      },
+      xh: {
+        title: "iMaze yoKukhanya",
+        description: "Phendula imibuzo ukubuyisela amandla kagesi ukuvuselela ukukhanya kweMaze!",
+        difficultyTitle: "Khetha iNqanaba lobunzima",
+        difficultySubtitle: "Khetha inqanaba lakho lokuziqhelanisa ukuqala umdlalo",
+        easyLabel: "Kulula",
+        intermediateLabel: "Phakathi",
+        hardLabel: "Nzima",
+        easyInfo: "Imibuzo emi-3 kufuneka uphendule",
+        intermediateInfo: "Imibuzo emi-5 kufuneka uphendule",
+        hardInfo: "Imibuzo eli-10 kufuneka uphendule",
+        instructionsTitle: "Imiyalelo",
+        instructionsText: "Sebenzisa i-arrow keys okanye i-WASD ukuhambisa umdlali oluhlaza ukuya kwindawo yokugqibela ebomvu. Phendula imibuzo ngokuchanekileyo ukukhanyisa iMaze. Impendulo nganye echaneleyo yandisa ukukhanya.",
+        winMessage: "🎉 Siyakuhalalisela! Ubuyisele amandla kagesi wagqiba ukucima ugesi!",
+        incorrect: "Ayichanile! Zama kwakhona.",
+        logoutText: "Phuma",
+        mapText: "Buyela kwiMapu",
+        gameTitle: "iMaze yoKukhanya",
+        footerText: "© 2025 iMaze yoKukhanya - Umdlalo wokuQaphela ukuCinywa koGesi",
+        creditText: "Yenziwe ngeenjongo zeMfundo",
+        difficulty: {
+          easy: "Kulula",
+          intermediate: "Phakathi",
+          hard: "Nzima"
+        }
+      }
+    };
+
+    let currentLanguage = localStorage.getItem('currentLanguage') || 'en';
+    let currentDifficulty = null;
+    let questionsNeeded = 0;
+
+    // Check if user is logged in
+    try {
+      if (!localStorage.getItem('currentUser')) {
+        window.location.href = 'index.html';
+      }
+    } catch (e) {
+      console.log("Running without localStorage");
+      // Mock localStorage for file:// protocol
+      if (typeof localStorage === 'undefined') {
+        localStorage = {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {}
+        };
+      }
+    }
+
+    // Set language on load
+    document.getElementById('language-select').value = currentLanguage;
+    switchLanguage();
+
+    function switchLanguage() {
+      currentLanguage = document.getElementById('language-select').value;
+      localStorage.setItem('currentLanguage', currentLanguage);
+     
+      const lang = languageContent[currentLanguage];
+      // Update all text elements
+      document.getElementById('title').textContent = lang.title;
+      document.getElementById('description').textContent = lang.description;
+      document.getElementById('difficulty-title').textContent = lang.difficultyTitle;
+      document.getElementById('difficulty-subtitle').textContent = lang.difficultySubtitle;
+      document.getElementById('instructions-title').textContent = lang.instructionsTitle;
+      document.getElementById('instructions-text').textContent = lang.instructionsText;
+      document.getElementById('logout-text').textContent = lang.logoutText;
+      document.getElementById('map-text').textContent = lang.mapText;
+      document.getElementById('game-title').textContent = lang.gameTitle;
+      document.getElementById('footer-text').textContent = lang.footerText;
+      document.getElementById('credit-text').textContent = lang.creditText;
+     
+      // Update difficulty selector text
+      document.getElementById('easy-label').textContent = lang.easyLabel;
+      document.getElementById('intermediate-label').textContent = lang.intermediateLabel;
+      document.getElementById('hard-label').textContent = lang.hardLabel;
+      document.getElementById('easy-info').innerHTML = `<i class="fas fa-question-circle"></i> ${lang.easyInfo}`;
+      document.getElementById('intermediate-info').innerHTML = `<i class="fas fa-question-circle"></i> ${lang.intermediateInfo}`;
+      document.getElementById('hard-info').innerHTML = `<i class="fas fa-question-circle"></i> ${lang.hardInfo}`;
+     
+      if (currentDifficulty) {
+        document.getElementById('difficultyLevel').textContent = lang.difficulty[currentDifficulty];
+      }
+    }
+
+    // Maze Game Code
+    const canvas = document.getElementById('mazeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const cols = 21;
+    const rows = 21;
+    const cellSize = canvas.width / cols;
+
+    const WALL = 1;
+    const PATH = 0;
+    const QUESTION = 2;
+
+    let maze = Array.from({ length: rows }, () => Array(cols).fill(WALL));
+    let player = { x: 1, y: 0 };
+    const goal = { x: cols - 2, y: rows - 1 };
+    let canMove = true;
+    let brightness = 0;
+    let questionsAnswered = 0;
+    let questionPoints = [];
+
+    // All questions organized by difficulty
+    const allQuestions = [
+      // Easy questions (3)
+      {
+        question: "What is the main cause of load shedding?",
+        options: ["Lack of resources", "Natural disasters", "Machinery breakage", "Lack of skilled workers"],
+        answer: 0,
+        difficulty: "easy",
+        explanation: "Load shedding primarily occurs due to insufficient electricity generation capacity to meet demand."
+      },
+      {
+        question: "How can you preserve food during load shedding?",
+        options: ["Take food out of fridge", "Put food in cupboard", "Keep fridge plugged in", "Freeze your food"],
+        answer: 3,
+        difficulty: "easy",
+        explanation: "Freezing food helps preserve it longer during power outages."
+      },
+      {
+        question: "What could lessen load shedding in the future?",
+        options: ["Use less electricity", "Invest in renewables", "Increase coal reliance", "Both 1 and 2"],
+        answer: 3,
+        difficulty: "easy",
+        explanation: "Both reducing electricity demand and investing in renewable energy sources can help reduce load shedding."
+      },
+     
+      // Intermediate questions (2 additional)
+      {
+        question: "How can individuals help during load shedding?",
+        options: ["Use more electricity", "Conserve energy", "Buy power-hungry appliances", "Avoid alternatives"],
+        answer: 1,
+        difficulty: "intermediate",
+        explanation: "Energy conservation by individuals helps reduce overall demand on the grid."
+      },
+      {
+        question: "What year did load shedding begin in SA?",
+        options: ["1994", "2007", "2015", "2020"],
+        answer: 1,
+        difficulty: "intermediate",
+        explanation: "South Africa first experienced load shedding in late 2007."
+      },
+     
+      // Hard questions (5 additional)
+      {
+        question: "How to reduce electricity during load shedding?",
+        options: ["Use more appliances", "Switch to gas cooking", "Leave lights on", "Run heaters"],
+        answer: 1,
+        difficulty: "hard",
+        explanation: "Using alternative energy sources like gas for cooking reduces electricity demand."
+      },
+      {
+        question: "Most used renewable in South Africa?",
+        options: ["Solar", "Wind", "Hydro", "Geothermal"],
+        answer: 0,
+        difficulty: "hard",
+        explanation: "Solar power is the most utilized renewable energy source in South Africa."
+      },
+      {
+        question: "What does Eskom stand for?",
+        options: ["Electricity Supply Commission", "Energy Supply Company", "Electric Service Commission", "Energy Saving Commission"],
+        answer: 0,
+        difficulty: "hard",
+        explanation: "Eskom is short for Electricity Supply Commission, South Africa's primary electricity supplier."
+      },
+      {
+        question: "Which province has most power stations?",
+        options: ["Gauteng", "Western Cape", "Mpumalanga", "KZN"],
+        answer: 2,
+        difficulty: "hard",
+        explanation: "Mpumalanga hosts most of South Africa's coal-fired power stations."
+      },
+      {
+        question: "What % of SA electricity comes from coal?",
+        options: ["30%", "50%", "70%", "90%"],
+        answer: 2,
+        difficulty: "hard",
+        explanation: "Approximately 70-80% of South Africa's electricity is generated from coal."
+      }
+    ];
+
+    // Question modal elements
+    const questionModal = document.getElementById('questionModal');
+    const questionText = document.getElementById('questionText');
+    const questionOptions = document.getElementById('questionOptions');
+
+    function startGame(difficulty) {
+      currentDifficulty = difficulty;
+      document.getElementById('difficultySelector').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'block';
+     
+      // Animate the transition
+      document.getElementById('gameContainer').style.animation = 'fadeIn 0.5s ease';
+     
+      // Set questions based on difficulty
+      switch(difficulty) {
+        case 'easy':
+          questionsNeeded = 3;
+          break;
+        case 'intermediate':
+          questionsNeeded = 5;
+          break;
+        case 'hard':
+          questionsNeeded = 10;
+          break;
+      }
+     
+      document.getElementById('questionsNeeded').textContent = questionsNeeded;
+      document.getElementById('difficultyLevel').textContent =
+        languageContent[currentLanguage].difficulty[difficulty];
+     
+      // Update progress bar
+      document.getElementById('difficulty-progress').style.width = '100%';
+      document.getElementById('difficulty-progress').style.backgroundColor =
+        difficulty === 'easy' ? '#2ecc71' :
+        difficulty === 'intermediate' ? '#f39c12' : '#e74c3c';
+     
+      resetGame();
+    }
+
+    function resetGame() {
+      player = { x: 1, y: 0 };
+      brightness = 0;
+      questionsAnswered = 0;
+      questionPoints = [];
+      document.getElementById('questionsCount').textContent = questionsAnswered;
+      document.getElementById('brightnessLevel').textContent = brightness;
+     
+      // Reset all questions
+      allQuestions.forEach(q => q.asked = false);
+     
+      generateMazeWithQuestions();
+      drawMaze();
+    }
+
+    function generateMazeWithQuestions() {
+      // Reset maze
+      maze = Array.from({ length: rows }, () => Array(cols).fill(WALL));
+     
+      // Generate maze paths
+      carveMaze(1, 1);
+      maze[0][1] = PATH; // Start point
+      maze[rows - 1][cols - 2] = PATH; // End point
+     
+      // Find solution path
+      const solutionPath = findSolutionPath();
+     
+      // Place questions - STRICT COUNT ENFORCEMENT
+      questionPoints = [];
+      const spacing = Math.max(1, Math.floor(solutionPath.length / questionsNeeded));
+     
+      // Place questions at intervals along solution path
+      for (let i = 0; i < questionsNeeded && i * spacing < solutionPath.length; i++) {
+        const index = i * spacing;
+        const { x, y } = solutionPath[index];
+        maze[y][x] = QUESTION;
+        questionPoints.push({x, y});
+      }
+     
+      // Ensure we placed exactly the required questions
+      while (questionPoints.length < questionsNeeded && solutionPath.length > 0) {
+        const randomPoint = solutionPath[Math.floor(Math.random() * solutionPath.length)];
+        if (maze[randomPoint.y][randomPoint.x] !== QUESTION) {
+          maze[randomPoint.y][randomPoint.x] = QUESTION;
+          questionPoints.push({x: randomPoint.x, y: randomPoint.y});
+        }
+      }
+    }
+
+    function carveMaze(y, x) {
+      maze[y][x] = PATH;
+      let dirs = [...directions];
+      shuffle(dirs);
+      for (let [dy, dx] of dirs) {
+        let ny = y + dy;
+        let nx = x + dx;
+        if (isInBounds(ny, nx) && maze[ny][nx] === WALL) {
+          maze[y + dy / 2][x + dx / 2] = PATH;
+          carveMaze(ny, nx);
+        }
+      }
+    }
+
+    const directions = [
+        // Up, Down, Left, Right
+      [0, -2], [0, 2], [-2, 0], [2, 0] 
+    ];
+
+    function isInBounds(y, x) {
+      return x > 0 && x < cols - 1 && y > 0 && y < rows - 1;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function findSolutionPath() {
+      const start = { x: 1, y: 0 };
+      const end = { x: cols - 2, y: rows - 1 };
+     
+      const queue = [{ ...start, path: [] }];
+      const visited = new Set();
+      visited.add(`${start.x},${start.y}`);
+     
+      while (queue.length > 0) {
+        const current = queue.shift();
+       
+        if (current.x === end.x && current.y === end.y) {
+          return [...current.path, { x: current.x, y: current.y }];
+        }
+       
+        for (const [dx, dy] of [[0, 1], [1, 0], [0, -1], [-1, 0]]) {
+          const nx = current.x + dx;
+          const ny = current.y + dy;
+         
+          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows &&
+              maze[ny][nx] !== WALL && !visited.has(`${nx},${ny}`)) {
+            visited.add(`${nx},${ny}`);
+            queue.push({
+              x: nx,
+              y: ny,
+              path: [...current.path, { x: current.x, y: current.y }]
+            });
+          }
+        }
+      }
+     
+      return [];
+    }
+
+    function drawMaze() {
+      // Calculate background brightness based on questions answered
+      const bgBrightness = Math.floor(255 * (brightness / 100));
+      ctx.fillStyle = `rgb(${bgBrightness}, ${bgBrightness}, ${bgBrightness})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          if (maze[y][x] === WALL) {
+            ctx.fillStyle = "#0f0";
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          } else if (maze[y][x] === QUESTION) {
+            ctx.fillStyle = "#ff0";
+            ctx.beginPath();
+            ctx.arc(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Draw goal
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(goal.x * cellSize + cellSize / 2, goal.y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw player
+      ctx.fillStyle = "lime";
+      ctx.beginPath();
+      ctx.arc(player.x * cellSize + cellSize / 2, player.y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function showQuestion() {
+      canMove = false;
+     
+      // Filter questions by difficulty and get unasked ones
+      let availableQuestions = allQuestions.filter(q =>
+        q.difficulty === 'easy' ||
+        (currentDifficulty === 'intermediate' && q.difficulty === 'intermediate') ||
+        (currentDifficulty === 'hard')
+      ).filter(q => !q.asked);
+     
+      // If all questions asked, reset asked status
+      if (availableQuestions.length === 0) {
+        allQuestions.forEach(q => q.asked = false);
+        availableQuestions = allQuestions.filter(q =>
+          q.difficulty === 'easy' ||
+          (currentDifficulty === 'intermediate' && q.difficulty === 'intermediate') ||
+          (currentDifficulty === 'hard')
+        );
+      }
+     
+      const currentQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+      currentQuestion.asked = true;
+     
+      questionText.textContent = currentQuestion.question;
+      questionOptions.innerHTML = '';
+     
+      currentQuestion.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'question-option';
+        button.textContent = option;
+        button.onclick = () => checkAnswer(index, currentQuestion.answer, currentQuestion.explanation);
+        questionOptions.appendChild(button);
+      });
+     
+      questionModal.style.display = 'flex';
+    }
+
+    function checkAnswer(selectedIndex, correctIndex, explanation) {
+      if (selectedIndex === correctIndex) {
+        questionsAnswered++;
+        brightness = Math.min(100, (questionsAnswered / questionsNeeded) * 100);
+        updateStats();
+        canMove = true;
+        questionModal.style.display = 'none';
+        drawMaze();
+       
+        // Show success message with explanation
+        showAlert("success", languageContent[currentLanguage].winMessage.split("!")[0] + "! " + explanation);
+      } else {
+        showAlert("error", languageContent[currentLanguage].incorrect + " " + explanation);
+      }
+    }
+
+    function showAlert(type, message) {
+      const alertBox = document.createElement('div');
+      alertBox.style.position = 'fixed';
+      alertBox.style.bottom = '20px';
+      alertBox.style.left = '50%';
+      alertBox.style.transform = 'translateX(-50%)';
+      alertBox.style.padding = '15px 25px';
+      alertBox.style.borderRadius = '50px';
+      alertBox.style.color = 'white';
+      alertBox.style.fontWeight = '500';
+      alertBox.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      alertBox.style.zIndex = '1000';
+      alertBox.style.animation = 'fadeIn 0.3s ease';
+      alertBox.textContent = message;
+     
+      if (type === "success") {
+        alertBox.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+      } else {
+        alertBox.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+      }
+     
+      document.body.appendChild(alertBox);
+     
+      setTimeout(() => {
+        alertBox.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+          document.body.removeChild(alertBox);
+        }, 300);
+      }, 3000);
+    }
+
+    function updateStats() {
+      document.getElementById('questionsCount').textContent = questionsAnswered;
+      document.getElementById('brightnessLevel').textContent = Math.floor(brightness);
+     
+      // Update progress bar animation
+      const progress = (questionsAnswered / questionsNeeded) * 100;
+      document.getElementById('difficulty-progress').style.width = `${progress}%`;
+    }
+
+    function movePlayer(dx, dy) {
+      if (!canMove) return;
+     
+      const newX = player.x + dx;
+      const newY = player.y + dy;
+     
+      if (newX >= 0 && newX < cols && newY >= 0 && newY < rows && maze[newY][newX] !== WALL) {
+        player.x = newX;
+        player.y = newY;
+       
+        // Check if player reached a question point
+        if (maze[newY][newX] === QUESTION && questionsAnswered < questionsNeeded) {
+          maze[newY][newX] = PATH; // Remove the question point
+          showQuestion();
+        }
+       
+        drawMaze();
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      if (player.x === goal.x && player.y === goal.y) {
+        if (questionsAnswered >= questionsNeeded) {
+          setTimeout(() => {
+            showAlert("success", languageContent[currentLanguage].winMessage);
+            setTimeout(returnToDifficultySelector, 2000);
+          }, 100);
+        } else {
+          showAlert("error", `You need to answer ${questionsNeeded - questionsAnswered} more questions to restore power!`);
+          // Move player back slightly
+          player.x = Math.max(1, player.x - 1);
+          drawMaze();
+        }
+      }
+    }
+
+    function returnToDifficultySelector() {
+      // Reset game elements
+      document.getElementById('difficultySelector').style.display = 'block';
+      document.getElementById('gameContainer').style.display = 'none';
+     
+      // Animate the transition
+      document.getElementById('difficultySelector').style.animation = 'fadeIn 0.5s ease';
+     
+      // Reset all questions
+      allQuestions.forEach(q => q.asked = false);
+      currentDifficulty = null;
+    }
+
+    // Keyboard controls
+    document.addEventListener("keydown", (e) => {
+      if (!canMove) return;
+     
+      switch (e.key.toLowerCase()) {
+        case "arrowup":
+        case "w": movePlayer(0, -1); break;
+        case "arrowdown":
+        case "s": movePlayer(0, 1); break;
+        case "arrowleft":
+        case "a": movePlayer(-1, 0); break;
+        case "arrowright":
+        case "d": movePlayer(1, 0); break;
+      }
+    });
+
+    // Touch controls for mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+   
+    canvas.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      e.preventDefault();
+    }, { passive: false });
+   
+    canvas.addEventListener('touchmove', (e) => {
+      if (!canMove) return;
+     
+      const touchEndX = e.touches[0].clientX;
+      const touchEndY = e.touches[0].clientY;
+     
+      const dx = touchEndX - touchStartX;
+      const dy = touchEndY - touchStartY;
+     
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal movement
+        if (dx > 5) movePlayer(1, 0);  // Right
+        else if (dx < -5) movePlayer(-1, 0); // Left
+      } else {
+        // Vertical movement
+        if (dy > 5) movePlayer(0, 1);  // Down
+        else if (dy < -5) movePlayer(0, -1); // Up
+      }
+     
+      e.preventDefault();
+    }, { passive: false });
+
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show difficulty selector initially
+      document.getElementById('difficultySelector').style.display = 'block';
+      document.getElementById('gameContainer').style.display = 'none';
+     
+      // Add CSS animations
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; transform: translateY(0); }
+          to { opacity: 0; transform: translateY(-20px); }
+        }
+      `;
+      document.head.appendChild(style); // Inject the animation styles into the document head
+    });
+  </script>
+</body>
+</html>
